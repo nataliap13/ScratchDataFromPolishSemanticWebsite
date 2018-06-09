@@ -1,0 +1,61 @@
+﻿@model Test.Models.InputWords
+
+<div class="container">
+	<div class="row">
+		<form asp-controller="WWW" asp-action="Index" method="post">
+			<div class="form-group">
+				<label asp-for="BeginWord"></label>
+				<input class="form-control" asp-for="BeginWord">
+			</div>
+			<div class="form-group">
+				<label asp-for="EndWord"></label>
+				<input class="form-control" asp-for="EndWord">
+			</div>
+			<button type="submit" class="btn btn-primary">Szukaj</button>
+		</form>
+	</div>
+	<div class="row">
+		Czas wyszukiwania: @ViewBag.time.TotalSeconds sekund.
+	</div>
+	<div class="row">
+		<div class="table-responsive">
+			<table class="table table-hover">
+				<caption>Podobieństwo semantyczne</caption>
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						@if (ViewBag.ways.Count > 0)
+						{
+							<th scope="col">Wyraz</th>
+							@for (int i = 0; i< ViewBag.ways[0].Count - 1; i++)
+							{
+								<th scope="col">Podobieństwo</th>
+								<th scope="col">Wyraz</th>
+							}
+							<th scope="col">Iloczyn</th>
+						}
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var way in ViewBag.ways)
+					{
+						<tr>
+							<th scope="row">@(ViewBag.ways.IndexOf(way) + 1)</th>
+
+							@foreach (var elem in way)
+							{
+								@if (elem.Similarity != "0")
+								{
+									<td>@elem.Similarity</td>
+								}
+								<td>@elem.Word</td>
+							}
+							<td>@ViewBag.multiply_simmilarity[ViewBag.ways.IndexOf(way)]</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
