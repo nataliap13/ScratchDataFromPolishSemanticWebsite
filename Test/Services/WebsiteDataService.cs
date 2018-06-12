@@ -9,16 +9,16 @@ namespace Test.Services
 {
     public class WebsiteDataService
     {
-        public List<Word_n_Sim> wordnet_go(List<Word_n_Sim> way, string end_word, List<List<Word_n_Sim>> search_lst, Object thisLock)
+        public List<List<Word_n_Sim>> wordnet_go(List<Word_n_Sim> way, string end_word, List<List<Word_n_Sim>> finalways, ref int length, Object thisLock)
         {
-        //    lock (thisLock)
-        //    {
-        //        Console.WriteLine("");
-        //        foreach (var step in way)
-        //        {
-        //            Console.Write(" -> " + step.Word);
-        //        }
-        //    }
+            //    lock (thisLock)
+            //    {
+            //        Console.WriteLine("");
+            //        foreach (var step in way)
+            //        {
+            //            Console.Write(" -> " + step.Word);
+            //        }
+            //    }
 
             var html = @"http://nlp.pwr.wroc.pl/wordnet/msr/" + way.Last().Word;
             HtmlWeb web = new HtmlWeb();
@@ -57,10 +57,15 @@ namespace Test.Services
                 if (word_n_sim.Word == end_word)//jest tylko jedno slowo na liscie slow odczytanych, ktore bedzie szukanym
                 {
                     way.Add(word_n_sim);
-                    return way;
+                    lock (thisLock)
+                    {
+                        finalways.Add(way);
+                        length = way.Count;
+                    }
+                    return new List<List<Word_n_Sim>>();
                 }
             }
-
+            List<List<Word_n_Sim>> to_be_searched_lists = new List<List<Word_n_Sim>>();
             //jesli zadne ze znalezionych slow nie jest slowem szukanym
             foreach (var word_n_sim in list_of_words_n_sims)
             {
@@ -70,16 +75,13 @@ namespace Test.Services
                 {
                     List<Word_n_Sim> way_to_be_searched = new List<Word_n_Sim>();
                     foreach (var word in way)//kopiowanie sciezki
-                    {
-                        way_to_be_searched.Add(word);
-                    }
+                    { way_to_be_searched.Add(word); }
 
                     way_to_be_searched.Add(word_n_sim);
-                    lock (thisLock)
-                    { search_lst.Add(way_to_be_searched); }
+                    to_be_searched_lists.Add(way_to_be_searched);
                 }
             }
-            return new List<Word_n_Sim>();
+            return to_be_searched_lists;
         }
         private List<string> Get_list_of_strings_from_HtmlNodeCollection(HtmlNodeCollection nodes)
         {

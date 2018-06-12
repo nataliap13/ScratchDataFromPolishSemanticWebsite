@@ -44,7 +44,7 @@ namespace Test
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=WWW}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
